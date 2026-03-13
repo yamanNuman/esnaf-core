@@ -2,6 +2,8 @@
 
 Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ürün, borç, vergi ve muhasebe modüllerini tek bir arayüzden yönetmenizi sağlar.
 
+---
+
 ## Teknoloji Stack
 
 | Katman | Teknoloji |
@@ -15,6 +17,8 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 | Frontend | Vite + React + TypeScript + Tailwind CSS |
 | Deploy | Docker Compose + Cloudflare Tunnel |
 
+---
+
 ## Özellikler
 
 - **Auth** — Kayıt, giriş, e-posta doğrulama, şifre sıfırlama, JWT + refresh token
@@ -22,6 +26,8 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 - **Borç Takibi** — Borç ekleme, ödeme/alım işlemleri, geçmiş
 - **Vergi Takvimi** — KDV, Geçici Vergi, Stopaj, Yıllık Vergi otomatik takvim
 - **Muhasebe** — Günlük ciro, giderler, banko giderler, ek gelirler, kenara ayrılan, aylık özet
+
+---
 
 ## Proje Yapısı
 
