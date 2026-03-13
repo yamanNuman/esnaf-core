@@ -1,12 +1,12 @@
 # esnaf-core
 
-Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ürün, borç, vergi ve muhasebe modüllerini tek bir arayüzden yönetmenizi sağlar.
+Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ürün yönetimi, stok takibi, borç, vergi ve muhasebe modüllerini tek bir arayüzden yönetmenizi sağlar.
 
 ---
 
 ## Teknoloji Stack
 
-| Katman | Teknoloji |
+| | Teknoloji |
 |--------|-----------|
 | Backend | Node.js + Express + TypeScript |
 | ORM | Prisma v7 |
