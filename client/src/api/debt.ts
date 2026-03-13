@@ -19,6 +19,11 @@ export const getDebtsApi = async (filters?: { search?: string }) => {
     return response.data;
 };
 
+export const getRecentTransactionsApi = async () => {
+    const response = await api.get("/debts/recent-transactions");
+    return response.data;
+};
+
 export const getDebtApi = async (id: number) => {
     const response = await api.get(`/debts/${id}`);
     return response.data;

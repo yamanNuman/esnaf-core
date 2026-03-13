@@ -1,13 +1,18 @@
 import { Request, Response } from "express";
 import { OK, CREATED } from "../constants/http";
 import { createDebtSchema, createTransactionSchema, updateDebtSchema } from "../schemas/debt.schema";
-import { getDebtNamesService, createDebtService, createTransactionService, deleteDebtService, getDebtService, getDebtsService, updateDebtService } from "../services/debt.service";
+import { getDebtNamesService, createDebtService, createTransactionService, deleteDebtService, getDebtService, getDebtsService, updateDebtService, getRecentTransactionsService } from "../services/debt.service";
 
 
 export const getDebtsHandler = async (req: Request, res: Response) => {
     const search = req.query.search as string | undefined;
     const debts = await getDebtsService({ search });
     return res.status(OK).json({ message: "Debts fetched successfully", debts });
+};
+
+export const getRecentTransactionsHandler = async (req: Request, res: Response) => {
+    const transactions = await getRecentTransactionsService(10);
+    return res.status(OK).json({ message: "Recent transactions fetched", transactions });
 };
 
 export const getDebtHandler = async (req: Request, res: Response) => {

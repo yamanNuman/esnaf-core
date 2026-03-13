@@ -22,6 +22,17 @@ export const getDebtsService = async (filters: { search?: string }) => {
     return debts;
 };
 
+export const getRecentTransactionsService = async (limit: number = 10) => {
+    const transactions = await prisma.debtTransaction.findMany({
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: {
+            debt: { select: { name: true } }
+        }
+    });
+    return transactions;
+};
+
 export const getDebtService = async (id: number) => {
     const debt = await prisma.debt.findUnique({
         where: { id },
