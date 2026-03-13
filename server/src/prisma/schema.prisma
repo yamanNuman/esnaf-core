@@ -1,0 +1,238 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output = "../generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+  verified Boolean @default(false)
+  role Role @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sessions Session[]
+  verificationCodes VerificationCode[]
+}
+
+model Session {
+  id String @id @default(cuid())
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model VerificationCode {
+  id String @id @default(cuid())
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type VerificationCodeType
+  code String @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime 
+
+  @@unique([userId, type])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum VerificationCodeType {
+  EmailVerification
+  PasswordReset
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  barcode String? @unique
+  category String
+  unit String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  costPrices ProductCostPrice[]
+  salePrices ProductSalePrice[]
+  stocks ProductStock[]
+}
+
+model ProductCostPrice {
+  id Int @id @default(autoincrement())
+  productId Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type PriceType
+  price Decimal @db.Decimal(10,2)
+  createdAt DateTime @default(now())
+}
+
+model ProductSalePrice {
+  id Int @id @default(autoincrement())
+  productId Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label String
+  price Decimal @db.Decimal(10,2)
+  createdAt DateTime @default(now())
+}
+
+model ProductStock {
+  id Int @id @default(autoincrement())
+  productId Int
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type PriceType
+  quantity Decimal @db.Decimal(10,2)
+  minQuantity Decimal @db.Decimal(10,2) @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+enum PriceType {
+  PACKAGE
+  PIECE
+}
+
+model Debt {
+  id Int @id @default(autoincrement())
+  name String
+  totalDebt Decimal @db.Decimal(10,2)
+  dueDate DateTime?
+  note String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  transactions DebtTransaction[]
+}
+
+model DebtTransaction {
+  id Int @id @default(autoincrement())
+  debtId Int
+  debt Debt @relation(fields: [debtId], references: [id], onDelete: Cascade)
+  type TransactionType
+  amount Decimal @db.Decimal(10,2)
+  note String?
+  date DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+enum TransactionType {
+  PURCHASE
+  PAYMENT
+}
+
+model Tax {
+  id Int @id @default(autoincrement())
+  type TaxType
+  period String
+  dueDate DateTime
+  amount Decimal? @db.Decimal(10, 2)
+  paidAt DateTime?
+  paidAmount Decimal? @db.Decimal(10, 2)
+  note String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([period, type])
+}
+
+enum TaxType {
+  KDV_DAMGA
+  GECICI_VERGI
+  STOPAJ
+  YILLIK_VERGI
+}
+
+model DailyEntry {
+  id Int @id @default(autoincrement())
+  date DateTime @unique
+  brokenCash Decimal @db.Decimal(10, 2) @default(0)
+  expenses Decimal @db.Decimal(10, 2) @default(0)
+  cardAmount Decimal @db.Decimal(10, 2) @default(0)
+  cashAmount Decimal @db.Decimal(10, 2) @default(0)
+  setAside    Decimal  @db.Decimal(10, 2) @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Expense {
+  id Int @id @default(autoincrement())
+  date DateTime
+  description String
+  amount Decimal @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+}
+
+model FixedExpenseTemplate {
+  id Int @id @default(autoincrement())
+  name String @unique
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  expenses MonthlyFixedExpense[]  
+}
+
+model MonthlyFixedExpense {
+  id Int @id @default(autoincrement())
+  year Int
+  month Int
+  description String
+  amount Decimal? @db.Decimal(10, 2)
+  dueDate DateTime?
+  paidAt DateTime?
+  templateId Int?
+  template FixedExpenseTemplate? @relation(fields: [templateId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([year, month, description])
+}
+
+model AdditionalIncomeTemplate {
+  id Int @id @default(autoincrement())
+  name String
+  dayOfMonth Int
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  incomes MonthlyAdditionalIncome[]
+}
+
+model MonthlyAdditionalIncome {
+  id Int @id @default(autoincrement())
+  year Int
+  month Int
+  description String
+  amount Decimal? @db.Decimal(10, 2)
+  spentAmount Decimal? @db.Decimal(10, 2)
+  date DateTime?
+  templateId Int?
+  template AdditionalIncomeTemplate? @relation(fields: [templateId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MonthlyCarryover {
+  id Int @id @default(autoincrement())
+  year Int
+  month Int
+  amount Decimal @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([year, month])
+}
+
+model SetAsideTransaction {
+  id Int @id @default(autoincrement())
+  year Int
+  month Int
+  description String
+  amount Decimal @db.Decimal(10,2)
+  createdAt DateTime @default(now())
+}

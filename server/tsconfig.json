@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                  // Modern JS output
+    "module": "CommonJS",                // Node.js için
+    "lib": ["ES2020"],                   // Modern JS özellikleri
+    "outDir": "./dist",             // Build sonrası JS dosyaları buraya
+    "rootDir": "./src",             // TS kaynak kodu buradan
+    "strict": true,                      // Tüm TS strict kuralları
+    "esModuleInterop": true,             // import/export uyumu
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,                // node_modules tip kontrolünü kapatır, hız için
+    "resolveJsonModule": true,           // JSON import edebilmek için
+    "noImplicitAny": true
+  },
+  "include": ["src","src/prisma/seed.ts"],             // TS compiler sadece burayı derleyecek
+  "exclude": ["node_modules", "server/dist"]  // Bunlar derlenmez
+}

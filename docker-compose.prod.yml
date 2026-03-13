@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: esnaf-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: esnaf_user
+      POSTGRES_PASSWORD: esnaf_pass
+      POSTGRES_DB: esnaf_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - esnaf-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: esnaf-server-prod
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://esnaf_user:esnaf_pass@postgres:5432/esnaf_db?schema=public
+      APP_ORIGIN: ${APP_ORIGIN}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      ACCESS_TOKEN_COOKIE: accessToken
+      REFRSH_TOKEN_COOKIE: refreshToken
+      NODE_ENV: production
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_SENDER: ${EMAIL_SENDER}
+    networks:
+      - esnaf-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: esnaf-client-prod
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+    networks:
+      - esnaf-network
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: esnaf-cloudflared
+    restart: unless-stopped
+    depends_on:
+      - client
+    command: tunnel --no-autoupdate --url http://client:80
+    networks:
+      - esnaf-network
+
+volumes:
+  postgres_data:
+
+networks:
+  esnaf-network:
+    driver: bridge
