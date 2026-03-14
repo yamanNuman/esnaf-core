@@ -81,8 +81,8 @@ export const getProductService = async(id: number) => {
     const product = await prisma.product.findUnique({
         where: {id},
         include: {
-            costPrices: { orderBy: { createdAt: "desc" }},
-            salePrices: { orderBy: { createdAt: "desc" }},
+            costPrices: { orderBy: { createdAt: "desc" }, take: 1},
+            salePrices: { orderBy: { createdAt: "desc" }, distinct: ["label"]},
             stocks: true
         }
     });
@@ -118,7 +118,6 @@ export const updateProductService = async(id: number, data: UpdateProductInput) 
             unit: data.unit,
             ...(data.salePrices && {
                 salePrices: {
-                    deleteMany: {}, // önce hepsini sil
                     create: data.salePrices.map((sp) => ({
                         label: sp.label,
                         price: sp.price
@@ -127,7 +126,6 @@ export const updateProductService = async(id: number, data: UpdateProductInput) 
             }),
             ...(data.costPrices && {
                 costPrices: {
-                    deleteMany: {}, // önce hepsini sil
                     create: data.costPrices.map((cp) => ({
                         type: cp.type,
                         price: cp.price
@@ -148,7 +146,7 @@ export const updateProductService = async(id: number, data: UpdateProductInput) 
         },
         include: {
             costPrices: { orderBy: { createdAt: "desc" }, take: 1 },
-            salePrices: { orderBy: { createdAt: "desc" }},
+            salePrices: { orderBy: { createdAt: "desc" }, distinct: ["label"]},
             stocks: true
         }
     });
