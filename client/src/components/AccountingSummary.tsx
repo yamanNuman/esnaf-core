@@ -13,7 +13,7 @@ const MONTH_NAMES = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Te
 
 const Row = ({ label, value, color = "text-gray-800", border = false }: {
     label: string;
-    value: string;
+    value: string;  
     color?: string;
     border?: boolean;
 }) => (
@@ -63,12 +63,8 @@ const AccountingSummary = ({ year, month, summary, onUpdate }: Props) => {
                 <Row label="Günlük Harcamalar" value={`- ${summary.totalDailyExpenses.toFixed(2)}₺`} color="text-red-500" />
                 <Row label="Giderler" value={`- ${summary.totalExpenses.toFixed(2)}₺`} color="text-red-500" />
                 <Row label="Kenara Ayrılan Kalan" value={`+ ${(summary.totalSetAside - summary.totalSetAsideSpent).toFixed(2)}₺`} color="text-blue-500" />
-                  <Row
-                        label="Genel Kalan"
-                        value={`${summary.generalRemaining.toFixed(2)}₺`}
-                        color={summary.generalRemaining >= 0 ? "text-green-600" : "text-red-500"}
-                        border
-                    />
+                <Row label="Dükkan Kalan" value={`${summary.shopRemaining.toFixed(2)}₺`} />
+                <Row label="Dükkan Kalan + Kenara Ayrılan Kalan" value={`${(summary.shopRemaining + ((summary.totalSetAside - summary.totalSetAsideSpent))).toFixed(2)}₺`} />
             </div>
 
                 {/* Kenara Ayrılan */}

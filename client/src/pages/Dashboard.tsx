@@ -152,32 +152,64 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Bu Ay Özet */}
                 {hasMonth && summary && (
-                    <div className="bg-white rounded-lg shadow-sm p-5">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-4">{MONTH_NAMES[currentMonth - 1]} Özeti</h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500">Toplam Hasılat</span>
-                                <span className="text-sm font-semibold text-gray-800">{summary.totalRevenue.toFixed(2)}₺</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500">Dükkan Kalan</span>
-                                <span className="text-sm font-semibold text-blue-600">{summary.shopRemaining.toFixed(2)}₺</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500">Genel Kalan</span>
-                                <span className="text-sm font-semibold text-green-600">{summary.generalRemaining.toFixed(2)}₺</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500">Cepte Olan</span>
-                                <span className="text-sm font-semibold text-purple-600">{summary.inPocket.toFixed(2)}₺</span>
-                            </div>
-                            <div className="border-t border-gray-100 pt-3 flex justify-between items-center">
-                                <span className="text-sm text-gray-500">Toplam Gider</span>
-                                <span className="text-sm font-semibold text-red-500">-{summary.totalExpenses.toFixed(2)}₺</span>
-                            </div>
-                        </div>
+            <div className="bg-white rounded-lg shadow-sm p-5">
+                <h3 className="text-sm font-semibold text-gray-700 mb-4">{MONTH_NAMES[currentMonth - 1]} Özeti</h3>
+                <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Toplam Hasılat</span>
+                        <span className="text-sm font-semibold text-gray-800">{summary.totalRevenue.toFixed(2)}₺</span>
                     </div>
-                )}
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Dükkan Kalan</span>
+                        <span className="text-sm font-semibold text-blue-600">{summary.shopRemaining.toFixed(2)}₺</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Dükkan Kalan + Kenara Ayrılan</span>
+                        <span className="text-sm font-semibold text-blue-500">
+                            {(summary.shopRemaining + (summary.totalSetAside - summary.totalSetAsideSpent)).toFixed(2)}₺
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Dükkan Kalan + Kenara Ayrılan Kalan + Ek Gelir Kalan</span>
+                        <span className="text-sm font-semibold text-blue-500">
+                            {(summary.shopRemaining + (summary.totalSetAside - summary.totalSetAsideSpent) + (summary.totalAdditionalIncome - summary.totalSpentFromIncome)).toFixed(2)}₺
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Kenara Ayrılan</span>
+                        <span className="text-sm font-semibold text-blue-500">
+                            {(summary.totalSetAside).toFixed(2)}₺
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Kenara Ayrılandan Kalan</span>
+                        <span className="text-sm font-semibold text-blue-500">
+                            {((summary.totalSetAside - summary.totalSetAsideSpent)).toFixed(2)}₺
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Ek Gelir</span>
+                        <span className="text-sm font-semibold text-blue-500">
+                            {(summary.totalAdditionalIncome).toFixed(2)}₺
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Ek Gelirden Kalan</span>
+                        <span className="text-sm font-semibold text-blue-500">
+                            {(summary.totalAdditionalIncome - summary.totalSpentFromIncome).toFixed(2)}₺
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-gray-100 pt-3">
+                        <span className="text-sm text-gray-500">Cepte Olan</span>
+                        <span className="text-sm font-semibold text-purple-600">{summary.inPocket.toFixed(2)}₺</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-gray-100 pt-3">
+                        <span className="text-sm text-gray-500">Toplam Gider</span>
+                        <span className="text-sm font-semibold text-red-500">-{summary.totalExpenses.toFixed(2)}₺</span>
+                    </div>
+                </div>
+            </div>
+        )}
 
                 {/* Düşük Stok */}
                 <div className="bg-white rounded-lg shadow-sm p-5">

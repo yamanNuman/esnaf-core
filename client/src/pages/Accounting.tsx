@@ -121,14 +121,18 @@ const Accounting = () => {
                             </div>
                             <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-xs text-gray-500 mb-1">Dükkan Kalan</p>
-                                <p className="text-xl font-bold text-blue-500">{summary.generalRemaining.toFixed(2)}₺</p>
+                                <p className="text-xl font-bold text-blue-500">
+                                    {(summary.shopRemaining + (summary.totalSetAside - summary.totalSetAsideSpent)).toFixed(2)}₺
+                                </p>
                             </div>
                             <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-xs text-gray-500 mb-1">Genel Kalan</p>
-                                <p className="text-xl font-bold text-green-500">{summary.generalRemaining.toFixed(2)}₺</p>
+                                <p className="text-xl font-bold text-green-500">
+                                    {(summary.shopRemaining + (summary.totalSetAside - summary.totalSetAsideSpent) + (summary.totalAdditionalIncome - summary.totalSpentFromIncome)).toFixed(2)}₺
+                                </p>
                             </div>
                             <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-xs text-gray-500 mb-1">Cepte Olan</p>
+                                <p className="text-xs text-gray-500 mb-1">Cepte Kalan</p>
                                 <p className="text-xl font-bold text-purple-500">{summary.inPocket.toFixed(2)}₺</p>
                             </div>
                         </div>

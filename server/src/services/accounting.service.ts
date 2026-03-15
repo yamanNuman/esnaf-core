@@ -340,7 +340,7 @@ export const getMonthlySummaryService = async (year: number, month: number) => {
         carryoverAmount,
         shopRemaining: totalRemaining - totalExpenses,
         generalRemaining: totalRemaining - totalExpenses + totalAdditionalIncome + (totalSetAside - totalSetAsideSpent),
-        inPocket: totalRemaining - totalSetAside + totalSetAsideSpent + carryoverAmount - totalExpenses + totalAdditionalIncome + totalSpentFromIncome,
+        inPocket: totalRemaining - totalSetAside + totalSetAsideSpent + carryoverAmount - totalExpenses + totalSpentFromIncome,
         totalCardCommission: dailyEntries.reduce((acc, e) => acc + Number(e.cardAmount) * 0.01, 0),
         totalBrokenCash: dailyEntries.reduce((acc, e) => acc + Number(e.brokenCash), 0),
         totalDailyExpenses: dailyEntries.reduce((acc, e) => acc + Number(e.expenses), 0),
