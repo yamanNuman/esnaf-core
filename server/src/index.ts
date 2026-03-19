@@ -17,6 +17,7 @@ import productRouter from "./routes/product.routes";
 import debtRouter from "./routes/debt.route";
 import taxRouter from "./routes/tax.routes";
 import accountingRouter from "./routes/accounting.routes";
+import aiRouter from "./routes/ai.routes";
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use('/products', productRouter);
 app.use('/debts', debtRouter);
 app.use('/taxes', taxRouter);
 app.use('/accounting', accountingRouter);
+app.use('/api', aiRouter);
 
 //Test Route
 app.get('/test', catchErrors(async(req, res) => {

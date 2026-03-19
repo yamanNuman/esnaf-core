@@ -1,12 +1,10 @@
 # esnaf-core
 
-Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ürün yönetimi, stok takibi, borç, vergi ve muhasebe modüllerini tek bir arayüzden yönetmenizi sağlar.
-
----
+Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ürün, borç, vergi ve muhasebe modüllerini tek bir arayüzden yönetmenizi sağlar.
 
 ## Teknoloji Stack
 
-| | Teknoloji |
+| Katman | Teknoloji |
 |--------|-----------|
 | Backend | Node.js + Express + TypeScript |
 | ORM | Prisma v7 |
@@ -15,9 +13,8 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 | Auth | JWT + bcrypt |
 | E-posta | Resend |
 | Frontend | Vite + React + TypeScript + Tailwind CSS |
+| AI | Groq API (Llama 3.3 70B) |
 | Deploy | Docker Compose + Cloudflare Tunnel |
-
----
 
 ## Özellikler
 
@@ -26,12 +23,11 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 - **Borç Takibi** — Borç ekleme, ödeme/alım işlemleri, geçmiş
 - **Vergi Takvimi** — KDV, Geçici Vergi, Stopaj, Yıllık Vergi otomatik takvim
 - **Muhasebe** — Günlük ciro, giderler, banko giderler, ek gelirler, kenara ayrılan, aylık özet
-
----
+- **AI Asistan** — Groq (Llama 3.3 70B) ile aylık muhasebe analizi, stok uyarısı ve borç önceliklendirmesi
 
 ## Proje Yapısı
 
-```bash
+```
 esnaf-core/
 ├── server/                  # Express API
 │   ├── src/
@@ -97,7 +93,7 @@ npm install
 ```
 
 `server/.env` dosyası oluştur:
-```bash
+```env
 PORT=3000
 DATABASE_URL="postgresql://esnaf_user:esnaf_pass@localhost:5432/esnaf_db?schema=public"
 APP_ORIGIN=http://localhost:5173
@@ -124,7 +120,7 @@ npm install
 ```
 
 `client/.env` dosyası oluştur:
-```bash
+```env
 VITE_API_URL=http://localhost:3000
 ```
 
@@ -161,13 +157,14 @@ Bu yöntemde uygulama ev/ofis bilgisayarında Docker ile çalışır, Cloudflare
 - Verilen token'ı kopyala
 
 **2. `.env.prod` dosyası oluştur:**
-```bash
+```env
 CLOUDFLARE_TOKEN=eyJh...token buraya...
 APP_ORIGIN=https://TUNNEL_URL.trycloudflare.com
 JWT_SECRET=guclu-jwt-secret-degistir
 JWT_REFRESH_SECRET=guclu-refresh-secret-degistir
 RESEND_API_KEY=re_xxxxxxxxxxxx
 EMAIL_SENDER=onboarding@resend.dev
+GROQ_API_KEY=gsk_xxxxxxxxxxxx
 ```
 
 > **Not:** `APP_ORIGIN` başlangıçta boş bırakılabilir, tunnel başladıktan sonra URL alınıp güncellenir.
@@ -184,13 +181,13 @@ docker logs esnaf-cloudflared
 ```
 
 Çıktıda şuna benzer bir URL görünür:
-```bash
+```
 Your quick Tunnel has been created! Visit it at:
 https://xxxx-xxxx-xxxx.trycloudflare.com
 ```
 
 **5. `.env.prod` güncelle ve server'ı yeniden başlat:**
-```bash
+```env
 APP_ORIGIN=https://xxxx-xxxx-xxxx.trycloudflare.com
 ```
 ```bash
@@ -303,9 +300,17 @@ docker exec -t esnaf-postgres-prod pg_dump -U esnaf_user esnaf_db > yedek.sql
 | GET/POST/DELETE | /accounting/set-aside | Kenara ayrılan |
 </details>
 
----
+<details>
+<summary>AI</summary>
 
-## Ortam Değişkenleri
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | /ai/summary?year&month | Aylık muhasebe analizi |
+| GET | /ai/stock | Stok durumu analizi |
+| GET | /ai/debt | Borç önceliklendirme analizi |
+</details>
+
+---
 
 | Değişken | Açıklama |
 |----------|----------|
@@ -319,6 +324,7 @@ docker exec -t esnaf-postgres-prod pg_dump -U esnaf_user esnaf_db > yedek.sql
 | `NODE_ENV` | development / production |
 | `RESEND_API_KEY` | Resend API anahtarı |
 | `EMAIL_SENDER` | Gönderici e-posta adresi |
+| `GROQ_API_KEY` | Groq API anahtarı (AI özellikleri için) |
 | `CLOUDFLARE_TOKEN` | Cloudflare Tunnel token (production) |
 
 ---

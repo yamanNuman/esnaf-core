@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { upsertMonthlyCarryoverApi } from "../api/accounting";
 import { type MonthlySummary, type ApiError } from "../types";
+import { analyzeMonthlySummaryApi } from "../api/ai";
 
 type Props = {
     year: number;
@@ -27,6 +28,8 @@ const AccountingSummary = ({ year, month, summary, onUpdate }: Props) => {
     const [carryoverInput, setCarryoverInput] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const handleCarryover = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,6 +46,20 @@ const AccountingSummary = ({ year, month, summary, onUpdate }: Props) => {
             setIsSubmitting(false);
         }
     };
+
+    const handleAiAnalysis = async () => {
+        setIsAnalyzing(true);
+        setAiAnalysis(null);
+        try {
+            const data = await analyzeMonthlySummaryApi(year, month);
+            setAiAnalysis(data.analysis);
+        } catch {
+            setAiAnalysis("Analiz yapılamadı.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
 
     if (!summary) return (
         <div className="text-center py-12 text-gray-400">Özet yüklenemedi.</div>
@@ -138,6 +155,24 @@ const AccountingSummary = ({ year, month, summary, onUpdate }: Props) => {
                             {isSubmitting ? "..." : "Kaydet"}
                         </button>
                     </form>
+                </div>
+                {/* AI Analiz */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-base font-semibold text-gray-800">🤖 AI Muhasebe Analizi</h3>
+                        <button
+                            onClick={handleAiAnalysis}
+                            disabled={isAnalyzing}
+                            className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition text-sm disabled:opacity-50"
+                        >
+                            {isAnalyzing ? "Analiz yapılıyor..." : "Analiz Et"}
+                        </button>
+                    </div>
+                    {aiAnalysis && (
+                        <div className="bg-purple-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                            {aiAnalysis}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

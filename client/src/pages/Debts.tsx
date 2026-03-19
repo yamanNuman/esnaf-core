@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getDebtsApi, deleteDebtApi } from "../api/debt";
 import { type Debt, type ApiError } from "../types";
 import useAuth from "../hooks/useAuth";
+import { analyzeDebtApi } from "../api/ai";
 
 const Debts = () => {
     const { user } = useAuth();
@@ -13,6 +14,8 @@ const Debts = () => {
     const [error, setError] = useState<string | null>(null);
     const [sortField, setSortField] = useState<"name" | "totalDebt" | "dueDate" | null>(null);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+    const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const fetchDebts = useCallback(async (searchValue?: string) => {
         setIsLoading(true);
@@ -71,18 +74,40 @@ const Debts = () => {
         }
     };
 
+    const handleAiAnalysis = async () => {
+        setIsAnalyzing(true);
+        setAiAnalysis(null);
+        try {
+            const data = await analyzeDebtApi();
+            setAiAnalysis(data.analysis);
+        } catch {
+            setAiAnalysis("Analiz yapılamadı.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
     return (
         <div>
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Debts</h2>
-                {user?.role === "ADMIN" && (
+                <div className="flex gap-2">
                     <button
-                        onClick={() => navigate("/dashboard/debts/create")}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm"
+                        onClick={handleAiAnalysis}
+                        disabled={isAnalyzing}
+                        className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition text-sm disabled:opacity-50"
                     >
-                        + Add Debt
+                        {isAnalyzing ? "Analiz yapılıyor..." : "🤖 AI Borç Analizi"}
                     </button>
-                )}
+                    {user?.role === "ADMIN" && (
+                        <button
+                            onClick={() => navigate("/dashboard/debts/create")}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm"
+                        >
+                            + Add Debt
+                        </button>
+                    )}
+                </div>
             </div>
 
             <input
@@ -105,6 +130,16 @@ const Debts = () => {
                     <p className={`text-3xl font-bold ${debts.reduce((acc, d) => acc + d.totalDebt, 0) > 0 ? "text-red-500" : "text-green-500"}`}>
                         {debts.reduce((acc, d) => acc + d.totalDebt, 0).toFixed(2)}₺
                     </p>
+                </div>
+            )}
+
+            {aiAnalysis && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-purple-700">🤖 AI Borç Analizi</span>
+                        <button onClick={() => setAiAnalysis(null)} className="text-gray-400 hover:text-gray-600 text-xs">✕ Kapat</button>
+                    </div>
+                    {aiAnalysis}
                 </div>
             )}
 

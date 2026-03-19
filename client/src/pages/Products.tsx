@@ -4,6 +4,7 @@ import { getProductsApi, deleteProductApi } from "../api/product";
 import { type Product, type ApiError } from "../types";
 import useAuth from "../hooks/useAuth";
 import useCategories from "../hooks/useCategories";
+import { analyzeStockApi } from "../api/ai";
 
 const Products = () => {
     const { user } = useAuth();
@@ -17,6 +18,8 @@ const Products = () => {
     const { refreshCategories} = useCategories();
     const [sortField, setSortField] = useState<"name" | "category" | null>(null);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+    const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);  
 
     const handleSort = (field: "name" | "category") => {
     if (sortField === field) {
@@ -73,6 +76,19 @@ const handleDelete = async (id: number) => {
     }
 };
 
+const handleAiAnalysis = async () => {
+    setIsAnalyzing(true);
+    setAiAnalysis(null);
+    try {
+        const data = await analyzeStockApi();
+        setAiAnalysis(data.analysis);
+    } catch {
+        setAiAnalysis("Analiz yapılamadı.");
+    } finally {
+        setIsAnalyzing(false);
+    }
+};
+
     return (
         <div>
             {/* Header */}
@@ -80,14 +96,23 @@ const handleDelete = async (id: number) => {
                 <h2 className="text-2xl font-bold text-gray-800">
                     {category ? category : "All Products"}
                 </h2>
-                {user?.role === "ADMIN" && (
+                <div className="flex gap-2">
                     <button
-                        onClick={() => navigate("/dashboard/products/create")}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm"
+                        onClick={handleAiAnalysis}
+                        disabled={isAnalyzing}
+                        className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition text-sm disabled:opacity-50"
                     >
-                        + Add Product
+                        {isAnalyzing ? "Analiz yapılıyor..." : "🤖 AI Stok Analizi"}
                     </button>
-                )}
+                    {user?.role === "ADMIN" && (
+                        <button
+                            onClick={() => navigate("/dashboard/products/create")}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm"
+                        >
+                            + Add Product
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Search & Filter */}
@@ -124,6 +149,16 @@ const handleDelete = async (id: number) => {
             {error && (
                 <div className="bg-red-50 text-red-500 p-3 rounded-lg mb-4 text-sm">
                     {error}
+                </div>
+            )}
+
+            {aiAnalysis && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-purple-700">🤖 AI Stok Analizi</span>
+                        <button onClick={() => setAiAnalysis(null)} className="text-gray-400 hover:text-gray-600 text-xs">✕ Kapat</button>
+                    </div>
+                    {aiAnalysis}
                 </div>
             )}
 
