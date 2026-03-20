@@ -24,6 +24,7 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 - **Vergi Takvimi** — KDV, Geçici Vergi, Stopaj, Yıllık Vergi otomatik takvim
 - **Muhasebe** — Günlük ciro, giderler, banko giderler, ek gelirler, kenara ayrılan, aylık özet
 - **AI Asistan** — Groq (Llama 3.3 70B) ile aylık muhasebe analizi, stok uyarısı ve borç önceliklendirmesi
+- **Satış & Faturalama** — Barkod okuyucu + manuel ürün seçimi, satış fişi (termal), e-fatura (A4), stok otomatik düşme, nakit/kart/karma ödeme, geçmiş ve yazdırma
 
 ## Proje Yapısı
 
@@ -305,6 +306,17 @@ docker exec -t esnaf-postgres-prod pg_dump -U esnaf_user esnaf_db > yedek.sql
 </details>
 
 <details>
+<summary>Satış</summary>
+
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | /sales | Satış listesi |
+| GET | /sales/:id | Satış detayı |
+| POST | /sales | Satış oluştur (ADMIN) |
+| DELETE | /sales/:id | Satış sil (ADMIN) |
+</details>
+
+<details>
 <summary>AI</summary>
 
 | Method | Endpoint | Açıklama |
@@ -333,11 +345,15 @@ docker exec -t esnaf-postgres-prod pg_dump -U esnaf_user esnaf_db > yedek.sql
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth App Client Secret |
 | `GITHUB_CALLBACK_URL` | GitHub OAuth callback URL |
 | `CLOUDFLARE_TOKEN` | Cloudflare Tunnel token (production) |
+| `SHOP_NAME` | Dükkan adı (fiş/fatura için) |
+| `SHOP_ADDRESS` | Dükkan adresi |
+| `SHOP_PHONE` | Dükkan telefonu |
+| `SHOP_TAX_NO` | Vergi kimlik numarası |
 
 ---
 
 ## Lisans
 
-Copyright (c) 2026 Yaman. All rights reserved.
+Copyright (c) 2026 Numan Yaman. All rights reserved.
 
 Bu kaynak kod yalnızca inceleme ve portfolyo amaçlı paylaşılmıştır. Yazılı izin olmaksızın kopyalanamaz, dağıtılamaz veya kullanılamaz.
