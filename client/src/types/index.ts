@@ -206,4 +206,32 @@ export type SetAsideTransaction = {
     createdAt: string;
 }
 
+export type SaleItem = {
+    id: number;
+    saleId: number;
+    productId: number;
+    name: string;
+    priceType: "PACKAGE" | "PIECE";
+    quantity: number;
+    unitPrice: number;
+    total: number;
+};
+
+export type Sale = {
+    id: number;
+    receiptNo: string;
+    type: "RECEIPT" | "INVOICE";
+    paymentType: "CASH" | "CARD" | "MIXED";
+    cardAmount: number;
+    cashAmount: number;
+    totalAmount: number;
+    note?: string;
+    createdAt: string;
+    items: SaleItem[];
+    buyerName?: string;
+    buyerAddress?: string;
+    buyerTaxNo?: string;
+    buyerPhone?: string;
+};
+
 export type ApiError = AxiosError<{ message: string; errorCode?: string }>;

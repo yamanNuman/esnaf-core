@@ -69,6 +69,7 @@ model Product {
   costPrices ProductCostPrice[]
   salePrices ProductSalePrice[]
   stocks ProductStock[]
+  sales SaleItem[]
 }
 
 model ProductCostPrice {
@@ -235,4 +236,45 @@ model SetAsideTransaction {
   description String
   amount Decimal @db.Decimal(10,2)
   createdAt DateTime @default(now())
+}
+
+model Sale {
+  id Int @id @default(autoincrement())
+  receiptNo String @unique
+  type SaleType @default(RECEIPT)
+  paymentType PaymentType
+  cardAmount Decimal @db.Decimal(10,2) @default(0)
+  cashAmount Decimal @db.Decimal(10,2) @default(0)
+  totalAmount Decimal @db.Decimal(10,2) @default(0)
+  note String?
+  createdAt DateTime @default(now())
+  items SaleItem[]
+  buyerName String?
+  buyerAddress String?
+  buyerTaxNo String?
+  buyerPhone String?
+}
+
+model SaleItem {
+  id Int @id @default(autoincrement())
+  saleId Int
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+  name String
+  priceType PriceType
+  quantity Decimal @db.Decimal(10,2)
+  unitPrice Decimal @db.Decimal(10,2)
+  total Decimal @db.Decimal(10,2)
+}
+
+enum SaleType {
+  RECEIPT
+  INVOICE
+}
+
+enum PaymentType {
+  CASH
+  CARD
+  MIXED
 }

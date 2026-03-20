@@ -20,6 +20,7 @@ import accountingRouter from "./routes/accounting.routes";
 import aiRouter from "./routes/ai.routes";
 import passport from "./config/passport";
 import githubRouter from "./routes/github.routes";
+import saleRouter from "./routes/sale.routes";
 
 const app = express();
 
@@ -43,7 +44,7 @@ app.use('/taxes', taxRouter);
 app.use('/accounting', accountingRouter);
 app.use('/api', aiRouter);
 app.use('/auth/github', githubRouter);
-
+app.use('/sales', saleRouter);
 //Test Route
 app.get('/test', catchErrors(async(req, res) => {
     const accessToken = null;

@@ -24,3 +24,7 @@ export const EMAIL_SENDER = getEnv("EMAIL_SENDER");
 export const GITHUB_CLIENT_ID = getEnv("GITHUB_CLIENT_ID");
 export const GITHUB_CLIENT_SECRET = getEnv("GITHUB_CLIENT_SECRET");
 export const GITHUB_CALLBACK_URL = getEnv("GITHUB_CALLBACK_URL");
+export const SHOP_NAME = getEnv("SHOP_NAME");
+export const SHOP_ADDRESS = getEnv("SHOP_ADDRESS");
+export const SHOP_PHONE = getEnv("SHOP_PHONE");
+export const SHOP_TAX_NO = getEnv("SHOP_TAX_NO");
