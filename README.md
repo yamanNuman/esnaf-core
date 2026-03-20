@@ -10,7 +10,7 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 | ORM | Prisma v7 |
 | Veritabanı | PostgreSQL |
 | Validasyon | Zod v4 |
-| Auth | JWT + bcrypt |
+| Auth | JWT + bcrypt + GitHub OAuth |
 | E-posta | Resend |
 | Frontend | Vite + React + TypeScript + Tailwind CSS |
 | AI | Groq API (Llama 3.3 70B) |
@@ -18,7 +18,7 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 
 ## Özellikler
 
-- **Auth** — Kayıt, giriş, e-posta doğrulama, şifre sıfırlama, JWT + refresh token
+- **Auth** — Kayıt, giriş, e-posta doğrulama, şifre sıfırlama, JWT + refresh token, GitHub OAuth ile giriş
 - **Ürün Yönetimi** — Barkod, kategori, stok, maliyet/satış fiyat geçmişi
 - **Borç Takibi** — Borç ekleme, ödeme/alım işlemleri, geçmiş
 - **Vergi Takvimi** — KDV, Geçici Vergi, Stopaj, Yıllık Vergi otomatik takvim
@@ -104,6 +104,10 @@ REFRSH_TOKEN_COOKIE=refreshToken
 NODE_ENV=development
 RESEND_API_KEY=re_xxxxxxxxxxxx
 EMAIL_SENDER=onboarding@resend.dev
+GROQ_API_KEY=gsk_xxxxxxxxxxxx
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+GITHUB_CALLBACK_URL=http://localhost:3000/auth/github/callback
 ```
 
 Migration ve seed çalıştır:
@@ -325,12 +329,15 @@ docker exec -t esnaf-postgres-prod pg_dump -U esnaf_user esnaf_db > yedek.sql
 | `RESEND_API_KEY` | Resend API anahtarı |
 | `EMAIL_SENDER` | Gönderici e-posta adresi |
 | `GROQ_API_KEY` | Groq API anahtarı (AI özellikleri için) |
+| `GITHUB_CLIENT_ID` | GitHub OAuth App Client ID |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth App Client Secret |
+| `GITHUB_CALLBACK_URL` | GitHub OAuth callback URL |
 | `CLOUDFLARE_TOKEN` | Cloudflare Tunnel token (production) |
 
 ---
 
 ## Lisans
 
-Copyright (c) 2026 Numan Yaman. All rights reserved.
+Copyright (c) 2026 Yaman. All rights reserved.
 
 Bu kaynak kod yalnızca inceleme ve portfolyo amaçlı paylaşılmıştır. Yazılı izin olmaksızın kopyalanamaz, dağıtılamaz veya kullanılamaz.
