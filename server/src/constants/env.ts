@@ -21,3 +21,6 @@ export const REFRSH_TOKEN_COOKIE = getEnv("REFRSH_TOKEN_COOKIE");
 export const NODE_ENV = getEnv("NODE_ENV");
 export const RESEND_API_KEY = getEnv("RESEND_API_KEY");
 export const EMAIL_SENDER = getEnv("EMAIL_SENDER");
+export const GITHUB_CLIENT_ID = getEnv("GITHUB_CLIENT_ID");
+export const GITHUB_CLIENT_SECRET = getEnv("GITHUB_CLIENT_SECRET");
+export const GITHUB_CALLBACK_URL = getEnv("GITHUB_CALLBACK_URL");

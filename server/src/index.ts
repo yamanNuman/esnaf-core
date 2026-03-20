@@ -18,6 +18,8 @@ import debtRouter from "./routes/debt.route";
 import taxRouter from "./routes/tax.routes";
 import accountingRouter from "./routes/accounting.routes";
 import aiRouter from "./routes/ai.routes";
+import passport from "./config/passport";
+import githubRouter from "./routes/github.routes";
 
 const app = express();
 
@@ -31,7 +33,7 @@ app.use(cors({                                    //Cross-origin req.
 }));            
 app.use(cookieParser());                          //Cookie parsing
 app.use(morgan("dev"));                           //HTTP Request Logging
-
+app.use(passport.initialize());
 //Routes
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
@@ -40,6 +42,7 @@ app.use('/debts', debtRouter);
 app.use('/taxes', taxRouter);
 app.use('/accounting', accountingRouter);
 app.use('/api', aiRouter);
+app.use('/auth/github', githubRouter);
 
 //Test Route
 app.get('/test', catchErrors(async(req, res) => {
