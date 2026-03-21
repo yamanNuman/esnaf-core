@@ -64,6 +64,7 @@ export type Product = {
     barcode?: string;
     category: string;
     unit: string;
+    packageQuantity?: number;
     createdAt: string;
     updatedAt: string;
     costPrices: CostPrice[];

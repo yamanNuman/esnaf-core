@@ -20,6 +20,7 @@ const EditProduct = () => {
         barcode: "",
         category: "",
         unit: "",
+        packageQuantity: "",
     });
 
     const [costPrices, setCostPrices] = useState<CostPrice[]>([]);
@@ -38,6 +39,7 @@ const EditProduct = () => {
                     barcode: product.barcode || "",
                     category: product.category,
                     unit: product.unit,
+                    packageQuantity: "",
                 });
 
                 setCostPrices(
@@ -111,6 +113,7 @@ const EditProduct = () => {
                 ...formData,
                 description: formData.description || undefined,
                 barcode: formData.barcode || undefined,
+                packageQuantity: formData.packageQuantity ? Number(formData.packageQuantity) : undefined,
                 costPrices,
                 salePrices,
                 stocks: stocks.filter(s => s.quantity > 0 || s.minQuantity > 0)
@@ -317,6 +320,18 @@ const EditProduct = () => {
                             </div>
                         </div>
                     ))}
+                    <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
+                        <span className="text-sm text-gray-600 w-40">1 Koli = kaç Adet</span>
+                        <input
+                            type="number"
+                            name="packageQuantity"
+                            value={formData.packageQuantity}
+                            onChange={handleChange}
+                            placeholder="Örn: 12"
+                            className="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <span className="text-xs text-gray-400">Adet stoğu bitince otomatik koliden açılır</span>
+                    </div>
                 </div>
 
                 <button

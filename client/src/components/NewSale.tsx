@@ -22,19 +22,8 @@ type CartItem = {
 type SaleType = "RECEIPT" | "INVOICE";
 type PaymentType = "CASH" | "CARD" | "MIXED";
 
-type ShopInfo = {
-    name: string;
-    address: string;
-    phone: string;
-    taxNo: string;
-};
-
-type BuyerInfo = {
-    buyerName: string;
-    buyerAddress: string;
-    buyerTaxNo: string;
-    buyerPhone: string;
-};
+type ShopInfo = { name: string; address: string; phone: string; taxNo: string; };
+type BuyerInfo = { buyerName: string; buyerAddress: string; buyerTaxNo: string; buyerPhone: string; };
 
 const NewSale = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -50,12 +39,22 @@ const NewSale = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successSale, setSuccessSale] = useState<any>(null);
     const [showProductList, setShowProductList] = useState(false);
-    const [barcodeProduct, setBarcodeProduct] = useState<Product | null>(null);
-    const [barcodeType, setBarcodeType] = useState<"PACKAGE" | "PIECE">("PIECE");
-    const [barcodeQty, setBarcodeQty] = useState("1");
     const [shopInfo, setShopInfo] = useState<ShopInfo>({ name: "", address: "", phone: "", taxNo: "" });
     const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({ buyerName: "", buyerAddress: "", buyerTaxNo: "", buyerPhone: "" });
     const [printSale, setPrintSale] = useState<any>(null);
+
+    // Barkod modal state
+    const [barcodeProduct, setBarcodeProduct] = useState<Product | null>(null);
+    const [barcodeType, setBarcodeType] = useState<"PACKAGE" | "PIECE">("PIECE");
+    const [barcodeQty, setBarcodeQty] = useState("1");
+    const [barcodePriceIndex, setBarcodePriceIndex] = useState(0);
+
+    // Manuel modal state
+    const [manualProduct, setManualProduct] = useState<Product | null>(null);
+    const [manualType, setManualType] = useState<"PACKAGE" | "PIECE">("PIECE");
+    const [manualQty, setManualQty] = useState("1");
+    const [manualPriceIndex, setManualPriceIndex] = useState(0);
+
     const barcodeRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -64,8 +63,7 @@ const NewSale = () => {
     }, []);
 
     useEffect(() => {
-        if (search.length > 0) setShowProductList(true);
-        else setShowProductList(false);
+        setShowProductList(search.length > 0);
     }, [search]);
 
     const fetchProducts = async (s?: string) => {
@@ -88,6 +86,7 @@ const NewSale = () => {
                     setBarcodeProduct(product);
                     setBarcodeType("PIECE");
                     setBarcodeQty("1");
+                    setBarcodePriceIndex(0);
                     setBarcodeInput("");
                     setError(null);
                 } else {
@@ -102,13 +101,12 @@ const NewSale = () => {
         }
     };
 
-    const addToCartWithQty = (product: Product, priceType: "PACKAGE" | "PIECE", qty: number = 1) => {
+    const addToCartWithQty = (product: Product, priceType: "PACKAGE" | "PIECE", qty: number, unitPrice: number) => {
         const stock = product.stocks.find(s => s.type === priceType);
-        const salePrice = product.salePrices[0];
         if (!stock || Number(stock.quantity) <= 0) { setError(`${product.name} için stok yok`); return; }
-        if (!salePrice) { setError(`${product.name} için satış fiyatı tanımlanmamış`); return; }
         if (qty > Number(stock.quantity)) { setError(`${product.name} için yeterli stok yok. Mevcut: ${stock.quantity}`); return; }
-        const existing = cart.findIndex(i => i.productId === product.id && i.priceType === priceType);
+
+        const existing = cart.findIndex(i => i.productId === product.id && i.priceType === priceType && i.unitPrice === unitPrice);
         if (existing >= 0) {
             const updated = [...cart];
             const newQty = updated[existing].quantity + qty;
@@ -119,7 +117,7 @@ const NewSale = () => {
         } else {
             setCart([...cart, {
                 productId: product.id, name: product.name, priceType, quantity: qty,
-                unitPrice: Number(salePrice.price), total: qty * Number(salePrice.price),
+                unitPrice, total: qty * unitPrice,
                 unit: product.unit, maxStock: Number(stock.quantity),
             }]);
         }
@@ -130,9 +128,19 @@ const NewSale = () => {
         if (!barcodeProduct) return;
         const qty = Number(barcodeQty);
         if (!qty || qty <= 0) { setError("Geçerli bir miktar girin"); return; }
-        addToCartWithQty(barcodeProduct, barcodeType, qty);
+        const selectedPrice = Number(barcodeProduct.salePrices[barcodePriceIndex]?.price || 0);
+        addToCartWithQty(barcodeProduct, barcodeType, qty, selectedPrice);
         setBarcodeProduct(null);
         barcodeRef.current?.focus();
+    };
+
+    const handleManualAdd = () => {
+        if (!manualProduct) return;
+        const qty = Number(manualQty);
+        if (!qty || qty <= 0) { setError("Geçerli bir miktar girin"); return; }
+        const selectedPrice = Number(manualProduct.salePrices[manualPriceIndex]?.price || 0);
+        addToCartWithQty(manualProduct, manualType, qty, selectedPrice);
+        setManualProduct(null);
     };
 
     const updateQuantity = (index: number, qty: number) => {
@@ -196,9 +204,7 @@ const NewSale = () => {
             <div className="max-w-lg mx-auto">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center mb-4">
                     <div className="text-4xl mb-2">✅</div>
-                    <h3 className="text-lg font-semibold text-green-800 mb-1">
-                        {successSale.type === "INVOICE" ? "Fatura" : "Fiş"} Oluşturuldu
-                    </h3>
+                    <h3 className="text-lg font-semibold text-green-800 mb-1">{successSale.type === "INVOICE" ? "Fatura" : "Fiş"} Oluşturuldu</h3>
                     <p className="text-green-600 font-mono">{successSale.receiptNo}</p>
                     <p className="text-2xl font-bold text-gray-800 mt-2">{Number(successSale.totalAmount).toFixed(2)}₺</p>
                 </div>
@@ -234,15 +240,20 @@ const NewSale = () => {
                                                 <p className="text-sm font-medium text-gray-800">{p.name}</p>
                                                 <p className="text-xs text-gray-400">{p.category}</p>
                                             </div>
-                                            <p className="text-sm font-semibold text-gray-700">{p.salePrices[0] ? `${p.salePrices[0].price}₺` : "-"}</p>
                                         </div>
-                                        <div className="flex gap-2">
-                                            {p.stocks.map(s => (
-                                                <button key={s.type} onClick={() => addToCartWithQty(p, s.type, 1)} disabled={Number(s.quantity) <= 0} className="flex-1 text-xs py-1 px-2 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                                                    {s.type === "PACKAGE" ? "Koli" : "Adet"} ekle ({s.quantity})
-                                                </button>
-                                            ))}
-                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setManualProduct(p);
+                                                setManualType("PIECE");
+                                                setManualQty("1");
+                                                setManualPriceIndex(0);
+                                                setShowProductList(false);
+                                                setSearch("");
+                                            }}
+                                            className="w-full text-xs py-1 px-2 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                        >
+                                            + Ekle
+                                        </button>
                                     </div>
                                 ))}
                             </div>
@@ -380,16 +391,68 @@ const NewSale = () => {
                             </div>
                         </div>
                         <div className="mb-4">
+                            <label className="text-sm font-medium text-gray-700 mb-2 block">Fiyat</label>
+                            <select value={barcodePriceIndex} onChange={e => setBarcodePriceIndex(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                {barcodeProduct.salePrices.map((sp, i) => (
+                                    <option key={i} value={i}>{sp.label} — {sp.price}₺</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="mb-4">
                             <label className="text-sm font-medium text-gray-700 mb-2 block">Miktar</label>
                             <input type="number" value={barcodeQty} onChange={e => setBarcodeQty(e.target.value)} min="1" autoFocus onKeyDown={e => e.key === "Enter" && handleBarcodeAdd()} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
                         </div>
                         <div className="bg-gray-50 rounded-lg p-3 text-sm mb-4">
-                            <div className="flex justify-between text-gray-600"><span>Birim Fiyat:</span><span>{barcodeProduct.salePrices[0]?.price}₺</span></div>
-                            <div className="flex justify-between font-semibold text-gray-800 mt-1"><span>Toplam:</span><span>{((Number(barcodeProduct.salePrices[0]?.price) || 0) * (Number(barcodeQty) || 0)).toFixed(2)}₺</span></div>
+                            <div className="flex justify-between text-gray-600"><span>Birim Fiyat:</span><span>{Number(barcodeProduct.salePrices[barcodePriceIndex]?.price || 0).toFixed(2)}₺</span></div>
+                            <div className="flex justify-between font-semibold text-gray-800 mt-1"><span>Toplam:</span><span>{(Number(barcodeProduct.salePrices[barcodePriceIndex]?.price || 0) * (Number(barcodeQty) || 0)).toFixed(2)}₺</span></div>
                         </div>
                         <div className="flex gap-3">
                             <button onClick={() => { setBarcodeProduct(null); barcodeRef.current?.focus(); }} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">İptal</button>
                             <button onClick={handleBarcodeAdd} className="flex-1 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600">Sepete Ekle</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Manuel Modal */}
+            {manualProduct && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-80">
+                        <h3 className="text-base font-semibold text-gray-800 mb-1">{manualProduct.name}</h3>
+                        <p className="text-xs text-gray-400 mb-4">{manualProduct.category}</p>
+                        <div className="mb-4">
+                            <label className="text-sm font-medium text-gray-700 mb-2 block">Tür</label>
+                            <div className="flex gap-2">
+                                {(["PIECE", "PACKAGE"] as const).map(t => {
+                                    const stock = manualProduct.stocks.find(s => s.type === t);
+                                    if (!stock) return null;
+                                    return (
+                                        <button key={t} onClick={() => setManualType(t)} className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${manualType === t ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                                            {t === "PACKAGE" ? "Koli" : "Adet"}<span className="text-xs ml-1 opacity-70">({stock.quantity})</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                        <div className="mb-4">
+                            <label className="text-sm font-medium text-gray-700 mb-2 block">Fiyat</label>
+                            <select value={manualPriceIndex} onChange={e => setManualPriceIndex(Number(e.target.value))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                {manualProduct.salePrices.map((sp, i) => (
+                                    <option key={i} value={i}>{sp.label} — {sp.price}₺</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="mb-4">
+                            <label className="text-sm font-medium text-gray-700 mb-2 block">Miktar</label>
+                            <input type="number" value={manualQty} onChange={e => setManualQty(e.target.value)} min="1" autoFocus onKeyDown={e => e.key === "Enter" && handleManualAdd()} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-3 text-sm mb-4">
+                            <div className="flex justify-between text-gray-600"><span>Birim Fiyat:</span><span>{Number(manualProduct.salePrices[manualPriceIndex]?.price || 0).toFixed(2)}₺</span></div>
+                            <div className="flex justify-between font-semibold text-gray-800 mt-1"><span>Toplam:</span><span>{(Number(manualProduct.salePrices[manualPriceIndex]?.price || 0) * (Number(manualQty) || 0)).toFixed(2)}₺</span></div>
+                        </div>
+                        <div className="flex gap-3">
+                            <button onClick={() => setManualProduct(null)} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">İptal</button>
+                            <button onClick={handleManualAdd} className="flex-1 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600">Sepete Ekle</button>
                         </div>
                     </div>
                 </div>

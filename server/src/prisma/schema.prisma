@@ -64,6 +64,7 @@ model Product {
   barcode String? @unique
   category String
   unit String
+  packageQuantity Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   costPrices ProductCostPrice[]

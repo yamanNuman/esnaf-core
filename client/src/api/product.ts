@@ -6,6 +6,7 @@ export type CreateProductInput = {
     barcode?: string;
     category: string;
     unit: string;
+    packageQuantity?: number;
     costPrices: { type: "PACKAGE" | "PIECE"; price: number }[];
     salePrices: { label: string; price: number }[];
     stocks: { type: "PACKAGE" | "PIECE"; quantity: number; minQuantity?: number }[];

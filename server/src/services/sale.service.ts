@@ -52,6 +52,10 @@ export const createSaleService = async (data: CreateSaleInput) => {
                 cashAmount: data.cashAmount,
                 totalAmount,
                 note: data.note,
+                buyerName: data.buyerName,
+                buyerAddress: data.buyerAddress,
+                buyerTaxNo: data.buyerTaxNo,
+                buyerPhone: data.buyerPhone,
                 items: {
                     create: data.items.map(i => ({
                         productId: i.productId,
@@ -66,12 +70,59 @@ export const createSaleService = async (data: CreateSaleInput) => {
             include: { items: { include: { product: true }}}
         });
 
-        for(const item of data.items) {
+for (const item of data.items) {
+    if (item.priceType === "PACKAGE") {
+        // Koli satışı — direkt koli stoktan düş
+        await tx.productStock.updateMany({
+            where: { productId: item.productId, type: "PACKAGE" },
+            data: { quantity: { decrement: item.quantity } }
+        });
+    } else {
+        // Adet satışı — önce adet stoktan düş, yetmiyorsa koliden aç
+        const pieceStock = await tx.productStock.findFirst({
+            where: { productId: item.productId, type: "PIECE" }
+        });
+        const product = await tx.product.findUnique({
+            where: { id: item.productId },
+            select: { packageQuantity: true }
+        });
+
+        const currentPiece = Number(pieceStock?.quantity || 0);
+        const needed = item.quantity;
+
+        if (currentPiece >= needed) {
+            // Adet stoğu yeterli, direkt düş
             await tx.productStock.updateMany({
-                where: { productId: item.productId, type: item.priceType },
-                data: { quantity: { decrement: item.quantity }}
+                where: { productId: item.productId, type: "PIECE" },
+                data: { quantity: { decrement: needed } }
+            });
+        } else if (product?.packageQuantity) {
+            // Adet stoğu yetersiz, koliden aç
+            const remaining = needed - currentPiece;
+            const packageQuantity = product.packageQuantity;
+            const packagesToOpen = Math.ceil(remaining / packageQuantity);
+            const extraPieces = (packagesToOpen * packageQuantity) - remaining;
+
+            // Adet stoğunu sıfırla + koliden açılan fazlayı ekle
+            await tx.productStock.updateMany({
+                where: { productId: item.productId, type: "PIECE" },
+                data: { quantity: extraPieces }
+            });
+
+            // Koli stoktan düş
+            await tx.productStock.updateMany({
+                where: { productId: item.productId, type: "PACKAGE" },
+                data: { quantity: { decrement: packagesToOpen } }
+            });
+        } else {
+            // packageQuantity tanımlı değil, direkt düş
+            await tx.productStock.updateMany({
+                where: { productId: item.productId, type: "PIECE" },
+                data: { quantity: { decrement: needed } }
             });
         }
+    }
+}
         return created;
     });
     return sale;

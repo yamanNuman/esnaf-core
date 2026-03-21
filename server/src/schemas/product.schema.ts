@@ -6,6 +6,7 @@ export const createProductSchema = z.object({
     barcode: z.string().optional(),
     category: z.string().min(1, "Category is required."),
     unit: z.string().min(1, "Unit is required."),
+    packageQuantity: z.number().int().positive().optional(),
     costPrices: z.array(z.object({
         type: z.enum(["PACKAGE","PIECE"]),
         price: z.number().positive("Price must be positive")

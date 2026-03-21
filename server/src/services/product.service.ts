@@ -13,6 +13,7 @@ export const createProductService = async(data: CreateProductInput) => {
             barcode: data.barcode,
             category: data.category,
             unit: data.unit,
+            packageQuantity: data.packageQuantity,
             costPrices: {
                 create: data.costPrices.map((cp) => ({
                     type: cp.type,
@@ -116,6 +117,7 @@ export const updateProductService = async(id: number, data: UpdateProductInput) 
             barcode: data.barcode,
             category: data.category,
             unit: data.unit,
+            packageQuantity: data.packageQuantity,
             ...(data.salePrices && {
                 salePrices: {
                     create: data.salePrices.map((sp) => ({
