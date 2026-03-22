@@ -46,3 +46,8 @@ export const getCategoriesApi = async () => {
     const response = await api.get("/products/categories");
     return response.data;
 };
+
+export const generateBarcodesApi = async () => {
+    const response = await api.post("/products/generate-barcodes");
+    return response.data;
+};

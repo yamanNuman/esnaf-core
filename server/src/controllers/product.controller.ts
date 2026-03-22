@@ -8,7 +8,8 @@ import {
     getProductsService,
     getProductService,
     updateProductService,
-    deleteProductService
+    deleteProductService,
+    generateBarcodesService
 } from "../services/product.service";
 
 
@@ -74,4 +75,9 @@ export const getCategoriesHandler = async (req: Request, res: Response) => {
         message: "Categories fetched successfully",
         categories
     });
+};
+
+export const generateBarcodesHandler = async (req: Request, res: Response) => {
+    const result = await generateBarcodesService();
+    return res.status(OK).json({ message: `${result.updated} ürüne barkod oluşturuldu`, ...result });
 };

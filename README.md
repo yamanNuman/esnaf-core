@@ -19,7 +19,8 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 ## Özellikler
 
 - **Auth** — Kayıt, giriş, e-posta doğrulama, şifre sıfırlama, JWT + refresh token, GitHub OAuth ile giriş
-- **Ürün Yönetimi** — Barkod, kategori, stok, maliyet/satış fiyat geçmişi, koli-adet dönüşümü (packageQuantity)
+- **Ürün Yönetimi** — Barkod (otomatik EAN-13 üretimi), kategori, stok, maliyet/satış fiyat geçmişi, koli-adet dönüşümü (packageQuantity)
+- **Barkod Yazdırma** — A4 (4x10 etiket/sayfa) ve termal yazıcı (40x25mm) formatları, fiyat seçimi, toplu barkod üretimi
 - **Borç Takibi** — Borç ekleme, ödeme/alım işlemleri, geçmiş
 - **Vergi Takvimi** — KDV, Geçici Vergi, Stopaj, Yıllık Vergi otomatik takvim
 - **Muhasebe** — Günlük ciro, giderler, banko giderler, ek gelirler, kenara ayrılan, aylık özet
@@ -261,6 +262,7 @@ docker exec -t esnaf-postgres-prod pg_dump -U esnaf_user esnaf_db > yedek.sql
 | GET | /products/:id | Ürün detayı |
 | GET | /products/categories | Kategoriler |
 | GET | /products/:id/price-history | Fiyat geçmişi |
+| POST | /products/generate-barcodes | Toplu barkod üret (ADMIN) |
 | POST | /products | Ürün ekle (ADMIN) |
 | PUT | /products/:id | Ürün güncelle (ADMIN) |
 | DELETE | /products/:id | Ürün sil (ADMIN) |
