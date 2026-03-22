@@ -19,12 +19,13 @@ Küçük işletmeler için geliştirilmiş ERP benzeri yönetim uygulaması. Ür
 ## Özellikler
 
 - **Auth** — Kayıt, giriş, e-posta doğrulama, şifre sıfırlama, JWT + refresh token, GitHub OAuth ile giriş
-- **Ürün Yönetimi** — Barkod, kategori, stok, maliyet/satış fiyat geçmişi
+- **Ürün Yönetimi** — Barkod, kategori, stok, maliyet/satış fiyat geçmişi, koli-adet dönüşümü (packageQuantity)
 - **Borç Takibi** — Borç ekleme, ödeme/alım işlemleri, geçmiş
 - **Vergi Takvimi** — KDV, Geçici Vergi, Stopaj, Yıllık Vergi otomatik takvim
 - **Muhasebe** — Günlük ciro, giderler, banko giderler, ek gelirler, kenara ayrılan, aylık özet
 - **AI Asistan** — Groq (Llama 3.3 70B) ile aylık muhasebe analizi, stok uyarısı ve borç önceliklendirmesi
-- **Satış & Faturalama** — Barkod okuyucu + manuel ürün seçimi, satış fişi (termal), e-fatura (A4), stok otomatik düşme, nakit/kart/karma ödeme, geçmiş ve yazdırma
+- **Satış & Faturalama** — Barkod okuyucu + manuel ürün seçimi, fiyat seçimi, satış fişi (termal), e-fatura (A4), stok otomatik düşme (koli-adet dönüşümü dahil), nakit/kart/karma ödeme, geçmiş ve yazdırma
+- **Satış Raporu** — Günlük/haftalık/aylık/yıllık/özel aralık ciro grafiği, ödeme dağılımı, en çok satılan ürünler, tüm ürün satış detayı
 
 ## Proje Yapısı
 
@@ -312,6 +313,7 @@ docker exec -t esnaf-postgres-prod pg_dump -U esnaf_user esnaf_db > yedek.sql
 |--------|----------|----------|
 | GET | /sales | Satış listesi |
 | GET | /sales/:id | Satış detayı |
+| GET | /sales/report | Satış raporu |
 | POST | /sales | Satış oluştur (ADMIN) |
 | DELETE | /sales/:id | Satış sil (ADMIN) |
 </details>
