@@ -39,3 +39,8 @@ export const deleteSaleApi = async (id: number) => {
     const response = await api.delete(`/sales/${id}`);
     return response.data;
 };
+
+export const getSalesReportApi = async (filters: { period: string; startDate?: string; endDate?: string }) => {
+    const response = await api.get("/sales/report", { params: filters });
+    return response.data;
+};

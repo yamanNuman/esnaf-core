@@ -180,3 +180,107 @@ export const deleteSaleService = async (id: number) => {
         await tx.sale.delete({ where: { id } });
     });
 };
+
+export const getSalesReportService = async (filters: {
+    period: "today" | "week" | "month" | "year" | "custom";
+    startDate?: string;
+    endDate?: string;
+}) => {
+    const now = new Date();
+    let start: Date;
+    let end: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    if (filters.period === "today") {
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    } else if (filters.period === "week") {
+        const day = now.getDay();
+        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+        start = new Date(now.getFullYear(), now.getMonth(), diff, 0, 0, 0);
+    } else if (filters.period === "month") {
+        start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+    } else if (filters.period === "year") {
+        start = new Date(now.getFullYear(), 0, 1, 0, 0, 0);
+        end = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+    } else {
+        start = new Date(filters.startDate || now);
+        end = new Date(filters.endDate || now);
+        end.setHours(23, 59, 59);
+    }
+
+    const sales = await prisma.sale.findMany({
+        where: { createdAt: { gte: start, lte: end } },
+        include: { items: true },
+        orderBy: { createdAt: "asc" }
+    });
+
+    // Özet
+    const totalRevenue = sales.reduce((acc, s) => acc + Number(s.totalAmount), 0);
+    const totalSales = sales.length;
+    const avgSaleAmount = totalSales > 0 ? totalRevenue / totalSales : 0;
+    const receiptCount = sales.filter(s => s.type === "RECEIPT").length;
+    const invoiceCount = sales.filter(s => s.type === "INVOICE").length;
+    const cashTotal = sales.reduce((acc, s) => acc + Number(s.cashAmount), 0);
+    const cardTotal = sales.reduce((acc, s) => acc + Number(s.cardAmount), 0);
+
+    // Dönem bazlı gruplama
+    const periodMap = new Map<string, number>();
+
+    if (filters.period === "today") {
+        // Saatlik
+        for (let h = 0; h < 24; h++) {
+            periodMap.set(`${String(h).padStart(2, "0")}:00`, 0);
+        }
+        sales.forEach(s => {
+            const hour = new Date(s.createdAt).getHours();
+            const key = `${String(hour).padStart(2, "0")}:00`;
+            periodMap.set(key, (periodMap.get(key) || 0) + Number(s.totalAmount));
+        });
+    } else if (filters.period === "year") {
+        // Aylık
+        const months = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+        months.forEach(m => periodMap.set(m, 0));
+        sales.forEach(s => {
+            const month = months[new Date(s.createdAt).getMonth()];
+            periodMap.set(month, (periodMap.get(month) || 0) + Number(s.totalAmount));
+        });
+    } else {
+        // Günlük
+        const current = new Date(start);
+        while (current <= end) {
+            const key = `${current.getDate()}/${current.getMonth() + 1}`;
+            periodMap.set(key, 0);
+            current.setDate(current.getDate() + 1);
+        }
+        sales.forEach(s => {
+            const d = new Date(s.createdAt);
+            const key = `${d.getDate()}/${d.getMonth() + 1}`;
+            periodMap.set(key, (periodMap.get(key) || 0) + Number(s.totalAmount));
+        });
+    }
+
+    const chartData = Array.from(periodMap.entries()).map(([label, value]) => ({ label, value }));
+
+    // En çok satılan ürünler
+    const productMap = new Map<string, { name: string; quantity: number; revenue: number }>();
+    sales.forEach(s => {
+        s.items.forEach(item => {
+            const existing = productMap.get(item.name) || { name: item.name, quantity: 0, revenue: 0 };
+            productMap.set(item.name, {
+                name: item.name,
+                quantity: existing.quantity + Number(item.quantity),
+                revenue: existing.revenue + Number(item.total),
+            });
+        });
+    });
+    const topProducts = Array.from(productMap.values())
+        .sort((a, b) => b.revenue - a.revenue);
+
+    return {
+        summary: { totalRevenue, totalSales, avgSaleAmount, receiptCount, invoiceCount, cashTotal, cardTotal },
+        chartData,
+        topProducts,
+        period: filters.period,
+        start: start.toISOString(),
+        end: end.toISOString(),
+    };
+};

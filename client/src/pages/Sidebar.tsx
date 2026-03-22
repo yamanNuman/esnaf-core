@@ -146,6 +146,29 @@ const Sidebar = () => {
                                         Accounting
                                     </Link>
                                 </li>
+                                <li>
+                                    <Link
+                                        to="/dashboard/sales"
+                                        className={`block px-4 py-2 rounded-lg transition ${
+                                            location.pathname.startsWith("/dashboard/sales")
+                                                ? "bg-blue-600 text-white"
+                                                : "text-gray-300 hover:bg-gray-700"
+                                        }`}
+                                    >
+                                        Sales
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/dashboard/sales/report"
+                                        className={`block px-4 py-2 rounded-lg transition text-sm ${
+                                            location.pathname === "/dashboard/sales/report"
+                                                ? "bg-blue-500 text-white"
+                                                : "text-gray-300 hover:bg-gray-700"
+                                        }`}
+                                    >
+                                        📊 Satış Raporu
+                                    </Link>
+                                </li>
                 </ul>
             </nav>
         </aside>

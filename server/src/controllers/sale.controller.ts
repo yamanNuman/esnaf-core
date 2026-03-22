@@ -27,3 +27,11 @@ export const deleteSaleHandler = async (req: Request, res: Response) => {
     await deleteSaleService(id);
     return res.status(OK).json({ message: "Fiş silindi" });
 };
+
+export const getSalesReportHandler = async (req: Request, res: Response) => {
+    const period = (req.query.period as string || "month") as "today" | "week" | "month" | "year" | "custom";
+    const startDate = req.query.startDate as string | undefined;
+    const endDate = req.query.endDate as string | undefined;
+    const report = await getSalesReportService({ period, startDate, endDate });
+    return res.status(OK).json({ message: "Report fetched", report });
+};
