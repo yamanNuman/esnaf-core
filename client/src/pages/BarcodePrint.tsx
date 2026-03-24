@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getProductsApi } from "../api/product";
+import { clearBarcodesApi, generateBarcodesApi, getProductsApi } from "../api/product";
 import type { Product, ApiError } from "../types";
 import JsBarcode from "jsbarcode";
 
@@ -15,6 +15,8 @@ const BarcodePrint = () => {
     const [printFormat, setPrintFormat] = useState<PrintFormat>("a4");
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [isClear, setClear] = useState(false);
 
     useEffect(() => {
         getProductsApi()
@@ -83,6 +85,37 @@ const BarcodePrint = () => {
         }
         return svg.outerHTML;
     };
+
+    const handleGenerateBarcodes = async () => {
+        if (!confirm("Barkodsuz tüm ürünlere otomatik barkod oluşturulacak. Devam?")) return;
+        setIsGenerating(true);
+        try {
+            const data = await generateBarcodesApi();
+            alert(`${data.updated} ürüne barkod oluşturuldu!`);
+            // Ürün listesini yenile
+            const productsData = await getProductsApi();
+            setProducts(productsData.products);
+        } catch {
+            alert("Barkod oluşturulurken hata oluştu");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const handleClearBarcodes = async () => {
+        if(!confirm("Tüm barkodları silmek istediğinize emin misiniz?")) return;
+        setClear(true);
+        try {
+            await clearBarcodesApi();
+            alert(`Tüm ürünlerin barkodları silindi.`);
+            const productsData = await getProductsApi();
+            setProducts(productsData.products);
+        } catch {
+            alert("Barkod silinirken hata oluştu.");
+        } finally {
+            setClear(false);
+        }
+    }
 
     const handlePrint = () => {
         const printArea = document.getElementById("print-area");
@@ -164,6 +197,20 @@ const BarcodePrint = () => {
                         <input type="checkbox" checked={showPrice} onChange={e => setShowPrice(e.target.checked)} />
                         Fiyat göster
                     </label>
+                    <button
+                        onClick={handleGenerateBarcodes}
+                        disabled={isGenerating}
+                        className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition disabled:opacity-50"
+                    >
+                        {isGenerating ? "Oluşturuluyor..." : "⚡ Barkodsuzlara Barkod Üret"}
+                    </button>
+                    <button
+                        onClick={handleClearBarcodes}
+                        disabled={isClear}
+                        className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition disabled:opacity-50"
+                    >  
+                        {isClear ? "Siliniyor..." : "Tüm Barkodları Sil."} 
+                    </button>
                     <button
                         onClick={handlePrint}
                         disabled={selected.size === 0}

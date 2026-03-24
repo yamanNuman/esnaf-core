@@ -17,12 +17,12 @@ export const generateTaxCalendarService =  async (year:number) => {
 
     const taxes = [];
 
-    //KDV_DAMGA 26th
+    //KDV_DAMGA 28th
     for(let month = 1; month <= 12; month++) {
         taxes.push({
             type: "KDV_DAMGA" as const,
             period: `${year}-${String(month).padStart(2, "0")}`,
-            dueDate: new Date(year, month - 1, 26, 12, 0, 0)
+            dueDate: new Date(year, month - 1, 28, 12, 0, 0)
         });
     }
 

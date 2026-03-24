@@ -9,7 +9,8 @@ import {
     getProductService,
     updateProductService,
     deleteProductService,
-    generateBarcodesService
+    generateBarcodesService,
+    clearAllBarcodesService
 } from "../services/product.service";
 
 
@@ -81,3 +82,8 @@ export const generateBarcodesHandler = async (req: Request, res: Response) => {
     const result = await generateBarcodesService();
     return res.status(OK).json({ message: `${result.updated} ürüne barkod oluşturuldu`, ...result });
 };
+
+export const clearBarcodesHandler =  async (req: Request, res: Response) => {
+    await clearAllBarcodesService();
+    return res.status(OK).json({ message: `Tüm ürünlerin barkodları silindi.`})
+}

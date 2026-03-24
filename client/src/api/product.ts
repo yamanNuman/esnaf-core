@@ -51,3 +51,7 @@ export const generateBarcodesApi = async () => {
     const response = await api.post("/products/generate-barcodes");
     return response.data;
 };
+
+export const clearBarcodesApi = async () => {
+    await api.delete("/products/clear-barcodes");
+}

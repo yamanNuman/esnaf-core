@@ -138,3 +138,28 @@ export const getDebtNamesService = async () => {
     });
     return debts;
 };
+
+export const deleteTransactionService = async (id: number) => {
+    const transaction = await prisma.debtTransaction.findUnique({ where: { id } });
+    appAssert(transaction, NOT_FOUND, "İşlem bulunamadı", AppErrorCode.DebtNotFound);
+
+    // Borç tutarını geri al
+    const debt = await prisma.debt.findUnique({ where: { id: transaction.debtId } });
+    appAssert(debt, NOT_FOUND, "Borç bulunamadı", AppErrorCode.DebtNotFound);
+
+    await prisma.$transaction(async (tx) => {
+        // İşlemi sil
+        await tx.debtTransaction.delete({ where: { id } });
+
+        // Borç tutarını güncelle
+        const amount = Number(transaction.amount);
+        const newTotal = transaction.type === "PURCHASE"
+            ? Number(debt.totalDebt) - amount
+            : Number(debt.totalDebt) + amount;
+
+        await tx.debt.update({
+            where: { id: transaction.debtId },
+            data: { totalDebt: newTotal }
+        });
+    });
+};

@@ -253,3 +253,16 @@ export const generateBarcodesService = async () => {
 
     return { updated };
 };
+
+export const clearAllBarcodesService = async () => {
+    const result = await prisma.product.updateMany({
+        where: {
+            barcode: {
+                not: null
+            }
+        },
+        data: {
+            barcode: null
+        }
+    });
+}

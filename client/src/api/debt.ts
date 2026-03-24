@@ -57,3 +57,8 @@ export const getDebtNamesApi = async () => {
     const response = await api.get("/debts/names");
     return response.data;
 };
+
+export const deleteTransactionApi = async (id: number) => {
+    const response = await api.delete(`/debts/transaction/${id}`);
+    return response.data;
+};

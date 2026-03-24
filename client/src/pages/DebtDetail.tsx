@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getDebtApi, createTransactionApi } from "../api/debt";
+import { getDebtApi, createTransactionApi, deleteTransactionApi } from "../api/debt";
 import { type ApiError, type Debt } from "../types";
 import useAuth from "../hooks/useAuth";
 
@@ -29,6 +29,18 @@ const DebtDetail = () => {
         setTxSortField(field);
         setTxSortOrder("asc");
     }
+    };
+
+    const handleDeleteTransaction = async (txId: number) => {
+        if (!confirm("Bu işlemi silmek istediğinize emin misiniz?")) return;
+        try {
+            await deleteTransactionApi(txId);
+            const data = await getDebtApi(Number(id));
+            setDebt(data.debt);
+        } catch (err) {
+            const error = err as ApiError;
+            setError(error.response?.data?.message || "İşlem silinemedi");
+        }
     };
 
     const sortedTransactions = [...(debt?.transactions || [])].sort((a, b) => {
@@ -185,6 +197,10 @@ const DebtDetail = () => {
                         <table className="w-full">
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
+                                    ...mevcut th'lar...
+                                    {user?.role === "ADMIN" && <th className="px-6 py-3"></th>}
+                                </tr>
+                                <tr>
                                     <th
                                         className="text-left px-6 py-3 text-sm font-medium text-gray-500 cursor-pointer hover:text-gray-700"
                                         onClick={() => handleTxSort("type")}
@@ -224,6 +240,16 @@ const DebtDetail = () => {
                                         <td className="px-6 py-4 text-sm text-gray-400">
                                             {t.date ? new Date(t.date).toLocaleDateString() : new Date(t.createdAt).toLocaleDateString()}
                                         </td>
+                                        {user?.role === "ADMIN" && (
+                                        <td className="px-6 py-4">
+                                            <button
+                                                onClick={() => handleDeleteTransaction(t.id)}
+                                                className="text-red-400 hover:text-red-600 text-xs"
+                                            >
+                                                Sil
+                                            </button>
+                                        </td>
+                                    )}
                                     </tr>
                                 ))}
                             </tbody>

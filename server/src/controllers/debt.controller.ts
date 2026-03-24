@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { OK, CREATED } from "../constants/http";
 import { createDebtSchema, createTransactionSchema, updateDebtSchema } from "../schemas/debt.schema";
-import { getDebtNamesService, createDebtService, createTransactionService, deleteDebtService, getDebtService, getDebtsService, updateDebtService, getRecentTransactionsService } from "../services/debt.service";
+import { getDebtNamesService, createDebtService, createTransactionService, deleteDebtService, getDebtService, getDebtsService, updateDebtService, getRecentTransactionsService, deleteTransactionService } from "../services/debt.service";
 
 
 export const getDebtsHandler = async (req: Request, res: Response) => {
@@ -50,4 +50,10 @@ export const deleteDebtHandler = async (req: Request, res: Response) => {
 export const getDebtNamesHandler = async (req: Request, res: Response) => {
     const names = await getDebtNamesService();
     return res.status(OK).json({ message: "Debt names fetched successfully", names });
+};
+
+export const deleteTransactionHandler = async (req: Request, res: Response) => {
+    const id = parseInt(req.params["id"] as string);
+    await deleteTransactionService(id);
+    return res.status(OK).json({ message: "İşlem silindi" });
 };
